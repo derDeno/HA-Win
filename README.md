@@ -46,5 +46,3 @@ data:
 dotnet build .\src\HaWin\HaWin.csproj
 ```
 
-## Links
-- https://github.com/derDeno/HA-Win
