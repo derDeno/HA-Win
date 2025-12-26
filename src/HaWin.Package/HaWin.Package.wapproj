@@ -12,6 +12,7 @@
     <AppxBundle>Never</AppxBundle>
     <AppxPackageDir>bin\$(Configuration)\AppPackages\</AppxPackageDir>
     <PackageVersion>$(Version).0</PackageVersion>
+    <AppxPackageIncludeVCLibs>false</AppxPackageIncludeVCLibs>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
