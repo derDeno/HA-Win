@@ -1,4 +1,4 @@
-# HaWin
+# HA Win
 
 Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
@@ -14,7 +14,7 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 - .NET 8 runtime (SDK only required for building)
 
 ## Quick start
-1. Run HaWin and open settings from the tray icon.
+1. Run HA Win and open settings from the tray icon.
 2. Configure your MQTT broker and save.
 3. Home Assistant will discover a new device and entities automatically.
 
@@ -45,4 +45,3 @@ data:
 ```powershell
 dotnet build .\src\HaWin\HaWin.csproj
 ```
-

@@ -6,6 +6,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaWin", "src\HaWin\HaWin.csproj", "{9A7EFD23-4924-2AFB-5D3E-11A0EE531026}"
 EndProject
+Project("{C7167F0D-BC9E-4E6E-9061-6F9D327D7E1A}") = "HaWin.Package", "src\HaWin.Package\HaWin.Package.wapproj", "{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,12 +18,17 @@ Global
 		{9A7EFD23-4924-2AFB-5D3E-11A0EE531026}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A7EFD23-4924-2AFB-5D3E-11A0EE531026}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A7EFD23-4924-2AFB-5D3E-11A0EE531026}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9A7EFD23-4924-2AFB-5D3E-11A0EE531026} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2921FBF5-E06C-4565-85F0-A427E0B7E697}

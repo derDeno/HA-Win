@@ -38,6 +38,24 @@ jobs:
       - name: Package
         run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
 
+      - name: Decode MSIX certificate
+        id: msix_cert
+        run: |
+          $certPath = "$env:RUNNER_TEMP\\ha-win-msix.pfx"
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ secrets.MSIX_CERT_BASE64 }}"))
+          "cert_path=$certPath" >> $env:GITHUB_OUTPUT
+
+      - name: Build MSIX
+        run: >
+          dotnet msbuild src/HaWin.Package/HaWin.Package.wapproj
+          /p:Configuration=Release
+          /p:GenerateAppxPackageOnBuild=true
+          /p:AppxBundle=Never
+          /p:AppxPackageDir=artifacts/msix/
+          /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
+          /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
+          /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
+
       - name: Tag release
         run: |
           git config user.name "github-actions[bot]"
@@ -52,4 +70,6 @@ jobs:
           draft: true
           tag_name: latest
           name: ${{ steps.app_version.outputs.version }}
-          files: artifacts/HaWin-win-x64.zip
+          files: |
+            artifacts/HaWin-win-x64.zip
+            artifacts/msix/**/*.msix
