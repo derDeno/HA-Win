@@ -23,6 +23,9 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Restore
         run: dotnet restore src/HaWin/HaWin.csproj
 
@@ -47,7 +50,7 @@ jobs:
 
       - name: Build MSIX
         run: >
-          dotnet msbuild src/HaWin.Package/HaWin.Package.wapproj
+          msbuild src/HaWin.Package/HaWin.Package.wapproj
           /p:Configuration=Release
           /p:GenerateAppxPackageOnBuild=true
           /p:AppxBundle=Never
