@@ -27,6 +27,12 @@ jobs:
       - name: Publish
         run: dotnet publish src/HaWin/HaWin.csproj -c Release -r win-x64 --self-contained false -o artifacts/publish
 
+      - name: Get app version
+        id: app_version
+        run: |
+          $version = dotnet msbuild src/HaWin/HaWin.csproj -getProperty:Version -nologo
+          "version=$version" >> $env:GITHUB_OUTPUT
+
       - name: Package
         run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
 
@@ -35,5 +41,5 @@ jobs:
         with:
           draft: true
           tag_name: pr-${{ github.event.pull_request.number }}-${{ github.run_number }}
-          name: PR #${{ github.event.pull_request.number }} build
+          name: ${{ steps.app_version.outputs.version }}
           files: artifacts/HaWin-win-x64.zip
