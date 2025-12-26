@@ -2,6 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ProjectGuid>{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}</ProjectGuid>
     <ProjectTypeGuids>{C7167F0D-BC9E-4E6E-9061-6F9D327D7E1A}</ProjectTypeGuids>
     <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
