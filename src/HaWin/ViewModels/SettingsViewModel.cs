@@ -110,9 +110,11 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     private static string GetAppVersion()
     {
-        return Assembly.GetExecutingAssembly()
+        var version = Assembly.GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString()
             ?? "unknown";
+
+        var plusIndex = version.IndexOf('+');
+        return plusIndex > 0 ? version[..plusIndex] : version;
     }
 }
