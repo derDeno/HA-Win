@@ -5,7 +5,7 @@ namespace HaWin.Services;
 
 public class NotificationService
 {
-    private const string AppId = "HaWin";
+    private const string AppId = "HA Win";
     private readonly TrayIconService _trayIcon;
 
     public NotificationService(TrayIconService trayIcon)

@@ -6,7 +6,7 @@ namespace HaWin.Utilities;
 
 internal static class ShortcutHelper
 {
-    private const string ShortcutName = "HaWin";
+    private const string ShortcutName = "HA Win";
 
     public static void EnsureShortcut(string appId)
     {

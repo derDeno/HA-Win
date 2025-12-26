@@ -17,7 +17,7 @@ public class TrayIconService : IDisposable
         _notifyIcon = new NotifyIcon
         {
             Icon = SystemIcons.Application,
-            Text = "HaWin",
+            Text = "HA Win",
             Visible = true
         };
 
