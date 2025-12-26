@@ -1,0 +1,39 @@
+name: Build and Draft Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_draft:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore src/HaWin/HaWin.csproj
+
+      - name: Publish
+        run: dotnet publish src/HaWin/HaWin.csproj -c Release -r win-x64 --self-contained false -o artifacts/publish
+
+      - name: Package
+        run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
+
+      - name: Draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.run_number }}
+          name: PR #${{ github.event.pull_request.number }} build
+          files: artifacts/HaWin-win-x64.zip
