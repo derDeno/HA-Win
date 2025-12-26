@@ -1,0 +1,158 @@
+<Window x:Class="HaWin.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HaWin Settings" Height="480" Width="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TabControl Grid.Row="0" SelectedIndex="0">
+      <TabItem Header="Status">
+        <Grid Margin="4,8,4,4">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Grid.Row="0" Text="Status" FontWeight="SemiBold" FontSize="14" />
+
+          <StackPanel Grid.Row="1" Margin="0,10,0,0">
+            <TextBlock Text="MQTT Connection" FontWeight="SemiBold" />
+            <TextBlock>
+              <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                  <Setter Property="Text" Value="Not running" />
+                  <Setter Property="Foreground" Value="Red" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                      <Setter Property="Text" Value="Running" />
+                      <Setter Property="Foreground" Value="Green" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </TextBlock.Style>
+            </TextBlock>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Margin="0,12,0,0">
+            <TextBlock Text="PC Name" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding MachineName}" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="MQTT">
+        <Grid Margin="4,8,4,4">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Broker Host" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding BrokerHost, UpdateSourceTrigger=PropertyChanged}" />
+          </Grid>
+
+          <Grid Grid.Row="1" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Broker Port" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding BrokerPort, UpdateSourceTrigger=PropertyChanged}" />
+          </Grid>
+
+          <Grid Grid.Row="2" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Username" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+          </Grid>
+
+          <Grid Grid.Row="3" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Password" VerticalAlignment="Center" />
+            <PasswordBox Grid.Column="1" x:Name="PasswordBox" />
+          </Grid>
+
+          <Grid Grid.Row="4" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Client ID" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" />
+          </Grid>
+
+          <StackPanel Grid.Row="5" Margin="0,10,0,0" Orientation="Horizontal">
+            <CheckBox Content="Use TLS" IsChecked="{Binding UseTls}" />
+          </StackPanel>
+
+          <Grid Grid.Row="6" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="140" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Notify Topic" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding NotifyTopic, Mode=OneWay}" IsReadOnly="True" />
+          </Grid>
+
+          <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Test Connection" Width="140" Click="TestConnectionButton_OnClick" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="App">
+        <Grid Margin="4,8,4,4">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Grid.Row="0" Text="App Settings" FontWeight="SemiBold" FontSize="14" />
+
+          <StackPanel Grid.Row="1" Margin="0,10,0,0">
+            <CheckBox Content="Start with Windows" IsChecked="{Binding AutoStart}" />
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Margin="0,12,0,0">
+            <TextBlock Text="Version" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding AppVersion}" />
+          </StackPanel>
+
+          <StackPanel Grid.Row="3" Margin="0,12,0,0" Orientation="Horizontal">
+            <Button Content="Open GitHub" Click="OpenGitHubButton_OnClick" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+    </TabControl>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Content="Save" Width="110" Margin="0,0,8,0" Click="SaveButton_OnClick" />
+      <Button Content="Hide" Width="80" Click="HideButton_OnClick" />
+    </StackPanel>
+  </Grid>
+</Window>
