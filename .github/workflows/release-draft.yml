@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,10 +38,18 @@ jobs:
       - name: Package
         run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
 
+      - name: Tag release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f latest
+          git tag -f v${{ steps.app_version.outputs.version }}
+          git push -f origin latest v${{ steps.app_version.outputs.version }}
+
       - name: Draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.run_number }}
+          tag_name: latest
           name: ${{ steps.app_version.outputs.version }}
           files: artifacts/HaWin-win-x64.zip
