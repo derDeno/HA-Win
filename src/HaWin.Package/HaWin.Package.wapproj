@@ -10,7 +10,7 @@
     <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
     <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
     <AppxBundle>Never</AppxBundle>
-    <AppxPackageDir>bin\$(Configuration)\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>$(MSBuildProjectDirectory)\..\..\artifacts\msix\</AppxPackageDir>
     <PackageVersion>$(Version).0</PackageVersion>
     <AppxPackageIncludeVCLibs>false</AppxPackageIncludeVCLibs>
     <AppxPackageArchitecture>x64</AppxPackageArchitecture>
