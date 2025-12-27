@@ -61,8 +61,18 @@ jobs:
           /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
           /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
 
-      - name: List MSIX output
-        run: Get-ChildItem -Path artifacts\msix -Recurse
+      - name: Collect MSIX output
+        run: |
+          New-Item -ItemType Directory -Path artifacts\msix -Force | Out-Null
+          $packages = Get-ChildItem -Path . -Recurse -Include *.msix,*.appx,*.msixbundle,*.msixupload,*.appxupload
+          if (-not $packages) {
+            Write-Error "No MSIX/AppX packages found."
+            exit 1
+          }
+          foreach ($p in $packages) {
+            Copy-Item $p.FullName -Destination artifacts\msix -Force
+          }
+          Get-ChildItem -Path artifacts\msix -Recurse
 
       - name: Tag release
         run: |
@@ -77,8 +87,11 @@ jobs:
           draft: true
           tag_name: v${{ steps.app_version.outputs.version }}
           name: ${{ steps.app_version.outputs.version }}
-          make_latest: true
+          make_latest: false
           files: |
             artifacts/HaWin-win-x64.zip
             artifacts/msix/**/*.msix
             artifacts/msix/**/*.appx
+            artifacts/msix/**/*.msixbundle
+            artifacts/msix/**/*.msixupload
+            artifacts/msix/**/*.appxupload
