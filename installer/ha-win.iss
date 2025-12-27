@@ -2,18 +2,10 @@
 #define AppPublisher "derDeno"
 #define AppExeName "HaWin.exe"
 #define AppId "{{B5A68C5E-1C5D-4C0D-A3F6-8F4C3B2C6E1A}}"
-#define CsprojPath "src\\HaWin\\HaWin.csproj"
 
-#define CsprojText LoadStringFromFile(CsprojPath)
-#define VersionStart Pos("<Version>", CsprojText)
-#define VersionEnd Pos("</Version>", CsprojText)
-#if VersionStart == 0
-  #error "Version tag not found in csproj."
+#ifndef AppVersion
+  #define AppVersion "0.0.0"
 #endif
-#if VersionEnd == 0
-  #error "Version end tag not found in csproj."
-#endif
-#define AppVersion Copy(CsprojText, VersionStart + 9, VersionEnd - (VersionStart + 9))
 
 [Setup]
 AppId={#AppId}
