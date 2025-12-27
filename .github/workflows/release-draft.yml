@@ -27,7 +27,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore
-        run: dotnet restore src/HaWin/HaWin.csproj
+        run: dotnet restore src/HaWin/HaWin.csproj -r win-x64
 
       - name: Publish
         run: dotnet publish src/HaWin/HaWin.csproj -c Release -r win-x64 --self-contained false -o artifacts/publish
