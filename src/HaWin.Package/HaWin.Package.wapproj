@@ -14,6 +14,8 @@
     <PackageVersion>$(Version).0</PackageVersion>
     <AppxPackageIncludeVCLibs>false</AppxPackageIncludeVCLibs>
     <AppxPackageArchitecture>x64</AppxPackageArchitecture>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
