@@ -64,8 +64,20 @@ jobs:
       - name: Collect MSIX output
         run: |
           New-Item -ItemType Directory -Path artifacts\msix -Force | Out-Null
-          $packages = Get-ChildItem -Path . -Recurse -Include *.msix,*.appx,*.msixbundle,*.msixupload,*.appxupload
+          $searchRoots = @(
+            "artifacts\\msix",
+            "src\\HaWin.Package\\bin",
+            "src\\HaWin.Package\\obj"
+          )
+          $patterns = "*.msix","*.appx","*.msixbundle","*.msixupload","*.appxupload"
+          $packages = foreach ($root in $searchRoots) {
+            if (Test-Path $root) {
+              Get-ChildItem -Path $root -Recurse -Include $patterns -ErrorAction SilentlyContinue
+            }
+          }
           if (-not $packages) {
+            Write-Host "Checked paths:"
+            $searchRoots | ForEach-Object { Write-Host " - $_" }
             Write-Error "No MSIX/AppX packages found."
             exit 1
           }
