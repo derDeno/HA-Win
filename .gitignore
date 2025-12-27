@@ -16,3 +16,5 @@ obj/
 Thumbs.db
 Desktop.ini
 
+build.ps1
+artifacts/

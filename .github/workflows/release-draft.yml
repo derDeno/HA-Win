@@ -88,6 +88,15 @@ jobs:
               }
             }
           }
+          if (-not $makeappx) {
+            Write-Host "makeappx.exe not found in SDK roots. Diagnostics:"
+            $sdkRoots | ForEach-Object { Write-Host " - $_ (exists: $(Test-Path $_))" }
+            Write-Host "where.exe makeappx:"
+            where.exe makeappx 2>$null
+            Write-Host "Windows Kits listing:"
+            if (Test-Path "$env:ProgramFiles(x86)\\Windows Kits") { Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits" -Recurse -Depth 3 -ErrorAction SilentlyContinue | Select-Object -First 200 }
+            if (Test-Path "$env:ProgramFiles\\Windows Kits") { Get-ChildItem "$env:ProgramFiles\\Windows Kits" -Recurse -Depth 3 -ErrorAction SilentlyContinue | Select-Object -First 200 }
+          }
           if (-not $makeappx) { throw "makeappx.exe not found" }
           $msixPath = "artifacts\\msix\\HaWin_$env:APP_VERSION`_x64.msix"
           & $makeappx.FullName pack /d $staging /p $msixPath /o
