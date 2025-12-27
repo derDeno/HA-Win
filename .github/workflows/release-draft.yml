@@ -64,11 +64,37 @@ jobs:
           $manifest.Package.Identity.Version = "$env:APP_VERSION.0"
           $manifest.Save("$staging\\Package.appxmanifest")
           New-Item -ItemType Directory -Path artifacts\\msix -Force | Out-Null
-          $makeappx = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter makeappx.exe | Sort-Object FullName -Descending | Select-Object -First 1
+          $sdkRoots = @(
+            "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin",
+            "$env:ProgramFiles(x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin"
+          )
+          $makeappx = $null
+          foreach ($root in $sdkRoots) {
+            if (Test-Path $root) {
+              $makeappx = Get-ChildItem $root -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+              if ($makeappx) { break }
+            }
+          }
+          if (-not $makeappx) {
+            Write-Host "Windows SDK tools not found. Installing Windows 10 SDK..."
+            choco install windows-sdk-10.0 -y
+            foreach ($root in $sdkRoots) {
+              if (Test-Path $root) {
+                $makeappx = Get-ChildItem $root -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+                if ($makeappx) { break }
+              }
+            }
+          }
           if (-not $makeappx) { throw "makeappx.exe not found" }
           $msixPath = "artifacts\\msix\\HaWin_$env:APP_VERSION`_x64.msix"
           & $makeappx.FullName pack /d $staging /p $msixPath /o
-          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1
+          $signtool = $null
+          foreach ($root in $sdkRoots) {
+            if (Test-Path $root) {
+              $signtool = Get-ChildItem $root -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+              if ($signtool) { break }
+            }
+          }
           if (-not $signtool) { throw "signtool.exe not found" }
           & $signtool.FullName sign /fd SHA256 /f $env:CERT_PATH /p $env:CERT_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $msixPath
           Get-ChildItem -Path artifacts\\msix
