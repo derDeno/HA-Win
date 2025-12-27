@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace HaWin.Services;
@@ -16,7 +17,7 @@ public class TrayIconService : IDisposable
 
         _notifyIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = LoadTrayIcon(),
             Text = "HA Win",
             Visible = true
         };
@@ -32,6 +33,24 @@ public class TrayIconService : IDisposable
     public void ShowBalloon(string title, string message)
     {
         _notifyIcon.ShowBalloonTip(5000, title, message, ToolTipIcon.Info);
+    }
+
+    private static Icon LoadTrayIcon()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
+            if (File.Exists(iconPath))
+            {
+                return new Icon(iconPath);
+            }
+        }
+        catch
+        {
+            // Fall back to the system icon if loading fails.
+        }
+
+        return SystemIcons.Application;
     }
 
     public void Dispose()

@@ -1,4 +1,8 @@
-# HA Win
+<p align="center">
+  <img src="icon.png" width="128" alt="App Icon">
+</p>
+
+<h1 align="center">HA Win</h1>
 
 Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
