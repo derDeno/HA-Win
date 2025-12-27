@@ -17,6 +17,10 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 - Windows 10/11
 - .NET 8 runtime (SDK only required for building)
 
+## Installation
+- Download the zip and copy it to the programms directory and execute the `.exe`
+- If you want don't want to manually install the programm, download and execute the `.msix` file. This will automatically install it for you.
+
 ## Quick start
 1. Run HA Win and open settings from the tray icon.
 2. Configure your MQTT broker and save.

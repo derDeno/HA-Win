@@ -57,10 +57,12 @@ jobs:
           /p:AppxBundle=Never
           /p:AppxPackageIncludeVCLibs=false
           /p:AppxPackageArchitecture=x64
-          /p:AppxPackageDir=${{ github.workspace }}\artifacts\msix\
           /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
           /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
           /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
+
+      - name: List MSIX output
+        run: Get-ChildItem -Path artifacts\msix -Recurse
 
       - name: Tag release
         run: |
