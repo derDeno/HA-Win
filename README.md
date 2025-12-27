@@ -4,6 +4,15 @@
 
 <h1 align="center">HA Win</h1>
 
+<p align="center">
+  <a href="https://github.com/derDeno/HA-Win/releases/latest">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/derDeno/HA-Win?display_name=tag&sort=semver">
+  </a>
+  <a href="https://github.com/derDeno/HA-Win/actions/workflows/release-draft.yml">
+    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/derDeno/HA-Win/release-draft.yml">
+  </a>
+</p>
+
 Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
 ## Highlights
