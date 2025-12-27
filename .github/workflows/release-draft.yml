@@ -80,7 +80,11 @@ jobs:
           }
           if (-not $makeappx) {
             Write-Host "Windows SDK tools not found. Installing Windows 10 SDK..."
-            choco install windows-sdk-10.0 -y
+            if (Get-Command winget -ErrorAction SilentlyContinue) {
+              winget install --id Microsoft.WindowsSDK.10.0.22621 -e --silent --accept-source-agreements --accept-package-agreements
+            } else {
+              choco install windows-sdk-10.0 -y
+            }
             foreach ($root in $sdkRoots) {
               if (Test-Path $root) {
                 $makeappx = Get-ChildItem $root -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
