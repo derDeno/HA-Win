@@ -57,7 +57,7 @@ jobs:
           /p:AppxBundle=Never
           /p:AppxPackageIncludeVCLibs=false
           /p:AppxPackageArchitecture=x64
-          /p:AppxPackageDir=artifacts/msix/
+          /p:AppxPackageDir=..\..\artifacts\msix\
           /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
           /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
           /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
