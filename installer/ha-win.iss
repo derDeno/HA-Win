@@ -1,4 +1,4 @@
-#define AppName "HA Win Installer"
+#define AppName "HA Win"
 #define AppPublisher "derDeno"
 #define AppExeName "HaWin.exe"
 #define AppId "{{B5A68C5E-1C5D-4C0D-A3F6-8F4C3B2C6E1A}}"
