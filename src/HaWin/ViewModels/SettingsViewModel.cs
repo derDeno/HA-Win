@@ -12,6 +12,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private int _brokerPort = 1883;
     private string _username = "";
     private string _password = "";
+    private string _namespace = TopicHelper.GetDeviceId();
     private bool _useTls;
     private bool _autoStart;
     private bool _autoCheckUpdates;
@@ -19,7 +20,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private bool _isConnected;
 
     public string MachineName { get; } = Environment.MachineName;
-    public string DeviceId { get; } = TopicHelper.GetDeviceId();
+    public string DeviceId => TopicHelper.SanitizeNamespace(Namespace);
     public string NotifyTopic => $"ha-win/{DeviceId}/notify";
     public string AppVersion { get; } = GetAppVersion();
 
@@ -45,6 +46,18 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         get => _password;
         set => SetField(ref _password, value);
+    }
+
+    public string Namespace
+    {
+        get => _namespace;
+        set
+        {
+            if (SetField(ref _namespace, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NotifyTopic)));
+            }
+        }
     }
 
     public bool UseTls
@@ -83,6 +96,9 @@ public class SettingsViewModel : INotifyPropertyChanged
         BrokerPort = settings.BrokerPort;
         Username = settings.Username;
         Password = settings.Password;
+        Namespace = string.IsNullOrWhiteSpace(settings.Namespace)
+            ? TopicHelper.GetDeviceId()
+            : settings.Namespace;
         UseTls = settings.UseTls;
         AutoStart = settings.AutoStart;
         AutoCheckUpdates = settings.AutoCheckUpdates;
@@ -97,6 +113,7 @@ public class SettingsViewModel : INotifyPropertyChanged
             BrokerPort = BrokerPort,
             Username = Username,
             Password = Password,
+            Namespace = Namespace,
             UseTls = UseTls,
             AutoStart = AutoStart,
             AutoCheckUpdates = AutoCheckUpdates,
@@ -106,15 +123,16 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (Equals(field, value))
         {
-            return;
+            return false;
         }
 
         field = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return true;
     }
 
     private static string GetAppVersion()

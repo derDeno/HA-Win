@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -104,7 +105,7 @@ public sealed class UpdateService
         public string? TagName { get; set; }
 
         [JsonPropertyName("assets")]
-        public ReleaseAsset[]? Assets { get; set; }
+        public ReleaseAsset[]? Assets { get; set; } = Array.Empty<ReleaseAsset>();
     }
 
     private sealed class ReleaseAsset

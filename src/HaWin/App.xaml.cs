@@ -85,7 +85,7 @@ public partial class App : System.Windows.Application
             await Dispatcher.InvokeAsync(() =>
             {
                 var message = $"A new version ({result.LatestVersion}) is available. Download and install it now?";
-                var choice = MessageBox.Show(Current.MainWindow!, message, "Update Available",
+                var choice = System.Windows.MessageBox.Show(Current.MainWindow!, message, "Update Available",
                     MessageBoxButton.YesNo, MessageBoxImage.Information);
                 if (choice == MessageBoxResult.Yes)
                 {

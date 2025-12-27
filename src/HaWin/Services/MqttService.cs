@@ -11,7 +11,7 @@ public class MqttService : IDisposable
 {
     private readonly NotificationService _notificationService;
     private readonly HomeAssistantDiscovery _discovery = new();
-    private readonly string _deviceId = TopicHelper.GetDeviceId();
+    private string _topicNamespace = TopicHelper.GetDeviceId();
     private readonly string _machineName = Environment.MachineName;
 
     private IMqttClient? _client;
@@ -31,6 +31,9 @@ public class MqttService : IDisposable
     public async Task ApplySettingsAsync(AppSettings settings)
     {
         _settings = settings;
+        _topicNamespace = string.IsNullOrWhiteSpace(settings.Namespace)
+            ? TopicHelper.GetDeviceId()
+            : TopicHelper.SanitizeNamespace(settings.Namespace);
         await ConnectAsync();
     }
 
@@ -45,7 +48,7 @@ public class MqttService : IDisposable
         using var client = factory.CreateMqttClient();
 
         var clientId = string.IsNullOrWhiteSpace(settings.ClientId)
-            ? $"HaWin-Test-{_deviceId}"
+            ? $"HaWin-Test-{_topicNamespace}"
             : $"{settings.ClientId}-test";
 
         var optionsBuilder = new MqttClientOptionsBuilder()
@@ -106,7 +109,7 @@ public class MqttService : IDisposable
         _client.DisconnectedAsync += OnDisconnected;
 
         var clientId = string.IsNullOrWhiteSpace(_settings.ClientId)
-            ? $"HaWin-{_deviceId}"
+            ? $"HaWin-{_topicNamespace}"
             : _settings.ClientId;
 
         var optionsBuilder = new MqttClientOptionsBuilder()
@@ -125,7 +128,7 @@ public class MqttService : IDisposable
         }
 
         optionsBuilder = optionsBuilder
-            .WithWillTopic(_discovery.StatusTopic(_deviceId))
+            .WithWillTopic(_discovery.StatusTopic(_topicNamespace))
             .WithWillPayload("offline")
             .WithWillRetain(true);
 
@@ -177,8 +180,8 @@ public class MqttService : IDisposable
             return;
         }
 
-        var actionTopic = $"{_discovery.BaseTopic(_deviceId)}/+/set";
-        var notifyTopic = _discovery.NotifyCommandTopic(_deviceId);
+        var actionTopic = $"{_discovery.BaseTopic(_topicNamespace)}/+/set";
+        var notifyTopic = _discovery.NotifyCommandTopic(_topicNamespace);
 
         await _client.SubscribeAsync(actionTopic);
         await _client.SubscribeAsync(notifyTopic);
@@ -192,25 +195,25 @@ public class MqttService : IDisposable
         }
 
         await PublishRetainedAsync(
-            _discovery.ButtonConfigTopic(_deviceId, "restart"),
-            _discovery.BuildButtonConfig(_deviceId, _machineName, "restart", "Restart PC", "mdi:restart"));
+            _discovery.ButtonConfigTopic(_topicNamespace, "restart"),
+            _discovery.BuildButtonConfig(_topicNamespace, _machineName, "restart", "Restart PC", "mdi:restart"));
 
         await PublishRetainedAsync(
-            _discovery.ButtonConfigTopic(_deviceId, "shutdown"),
-            _discovery.BuildButtonConfig(_deviceId, _machineName, "shutdown", "Shutdown PC", "mdi:power"));
+            _discovery.ButtonConfigTopic(_topicNamespace, "shutdown"),
+            _discovery.BuildButtonConfig(_topicNamespace, _machineName, "shutdown", "Shutdown PC", "mdi:power"));
 
         await PublishRetainedAsync(
-            _discovery.ButtonConfigTopic(_deviceId, "standby"),
-            _discovery.BuildButtonConfig(_deviceId, _machineName, "standby", "Standby PC", "mdi:sleep"));
+            _discovery.ButtonConfigTopic(_topicNamespace, "standby"),
+            _discovery.BuildButtonConfig(_topicNamespace, _machineName, "standby", "Standby PC", "mdi:sleep"));
 
         await PublishRetainedAsync(
-            _discovery.NotifyConfigTopic(_deviceId),
-            _discovery.BuildNotifyConfig(_deviceId, _machineName));
+            _discovery.NotifyConfigTopic(_topicNamespace),
+            _discovery.BuildNotifyConfig(_topicNamespace, _machineName));
     }
 
     private async Task PublishStatusAsync(string status)
     {
-        await PublishRetainedAsync(_discovery.StatusTopic(_deviceId), status);
+        await PublishRetainedAsync(_discovery.StatusTopic(_topicNamespace), status);
     }
 
     private async Task PublishRetainedAsync(string topic, string payload)
@@ -234,13 +237,13 @@ public class MqttService : IDisposable
         var topic = args.ApplicationMessage.Topic;
         var payload = Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment);
 
-        if (topic == _discovery.NotifyCommandTopic(_deviceId))
+        if (topic == _discovery.NotifyCommandTopic(_topicNamespace))
         {
             HandleNotification(payload);
             return Task.CompletedTask;
         }
 
-        if (!topic.StartsWith(_discovery.BaseTopic(_deviceId) + "/", StringComparison.OrdinalIgnoreCase))
+        if (!topic.StartsWith(_discovery.BaseTopic(_topicNamespace) + "/", StringComparison.OrdinalIgnoreCase))
         {
             return Task.CompletedTask;
         }
