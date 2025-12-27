@@ -48,3 +48,12 @@ Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: desk
 
 [Run]
 Filename: "{app}\\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+function InitializeUninstall(): Boolean;
+var
+  ResultCode: Integer;
+begin
+  Exec('taskkill', '/IM "{#AppExeName}" /T /F', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := True;
+end;
