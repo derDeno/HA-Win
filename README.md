@@ -29,11 +29,10 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 ## Installation
 
 ### 1. Installer
-- Donwload the latest Setup exe file and execute it.
+- Donwload the latest `HA-Win-Setup.exe` file and execute it.
 
 ### 2. Manual installation
-- Download the zip and copy it to the programms directory and execute the `.exe`
-- Download the latest zip and run the app from the extracted folder.
+- Download the zip and copy the whole folder to the program files directory and execute the `HAWin.exe`
 
 ### 3. Compile yourself
 - Donwload the source code
@@ -63,3 +62,12 @@ Device namespace uses a sanitized machine name: `ha-win/<device-id>`.
 Payload options:
 - Plain text: `Hello from Home Assistant`
 - JSON: `{ "title": "Door", "message": "Front door opened" }`
+
+
+## Update
+The program has a check for updates button. This will check for a new version and if available it will install it.
+You can also activate the auto check for updates in the App tab.
+
+
+## Uninstall
+When installed with the installer, run the uninstall from the settings page or manually from the program files directory.

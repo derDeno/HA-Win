@@ -33,8 +33,6 @@ public partial class App : System.Windows.Application
         var window = new MainWindow();
         Current.MainWindow = window;
         window.Show();
-
-        _ = CheckForUpdatesOnStartupAsync();
     }
 
     private void ShowSettingsWindow()
@@ -71,38 +69,4 @@ public partial class App : System.Windows.Application
         base.OnExit(e);
     }
 
-    private async Task CheckForUpdatesOnStartupAsync()
-    {
-        if (!_settings.AutoCheckUpdates)
-        {
-            return;
-        }
-
-        try
-        {
-            var currentVersion = UpdateService.GetCurrentVersion();
-            var result = await UpdateService.CheckForUpdateAsync(currentVersion);
-            if (result == null)
-            {
-                return;
-            }
-
-            var choice = await Dispatcher.InvokeAsync(() =>
-            {
-                var message = $"A new version ({result.LatestVersion}) is available. Download and install it now?";
-                return System.Windows.MessageBox.Show(Current.MainWindow!, message, "Update Available",
-                    MessageBoxButton.YesNo, MessageBoxImage.Information);
-            });
-
-            if (choice == MessageBoxResult.Yes)
-            {
-                await UpdateService.DownloadAndRunInstallerAsync(result.DownloadUrl);
-                await Dispatcher.InvokeAsync(RequestExit);
-            }
-        }
-        catch
-        {
-            // Silent on startup to avoid blocking app launch.
-        }
-    }
 }
