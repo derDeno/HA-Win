@@ -21,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -52,9 +52,11 @@ jobs:
         run: >
           msbuild src/HaWin.Package/HaWin.Package.wapproj
           /p:Configuration=Release
+          /p:Platform=x64
           /p:GenerateAppxPackageOnBuild=true
           /p:AppxBundle=Never
           /p:AppxPackageIncludeVCLibs=false
+          /p:AppxPackageArchitecture=x64
           /p:AppxPackageDir=artifacts/msix/
           /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
           /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
