@@ -19,7 +19,7 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
 ## Installation
 - Download the zip and copy it to the programms directory and execute the `.exe`
-- If you want don't want to manually install the programm, download and execute the `.msix` file. This will automatically install it for you.
+- Download the latest zip and run the app from the extracted folder.
 
 ## Quick start
 1. Run HA Win and open settings from the tray icon.
