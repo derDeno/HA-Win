@@ -4,7 +4,11 @@
 #define AppId "{{B5A68C5E-1C5D-4C0D-A3F6-8F4C3B2C6E1A}}"
 
 #ifndef AppVersion
-  #define AppVersion "0.0.0"
+  #if FileExists("..\\artifacts\\publish\\HaWin.exe")
+    #define AppVersion GetVersionNumbersString("..\\artifacts\\publish\\HaWin.exe")
+  #else
+    #define AppVersion "0.0.0"
+  #endif
 #endif
 
 [Setup]
@@ -25,6 +29,8 @@ ArchitecturesInstallIn64BitMode=x64
 WizardStyle=modern
 UsePreviousAppDir=yes
 DisableDirPage=auto
+VersionInfoVersion={#AppVersion}
+VersionInfoProductVersion={#AppVersion}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

@@ -57,12 +57,31 @@ public sealed class UpdateService
             fileName = "HA-Win-Setup.exe";
         }
 
-        var downloadPath = Path.Combine(Path.GetTempPath(), fileName);
-        await using var stream = await Http.GetStreamAsync(downloadUrl, cancellationToken);
-        await using var file = File.Create(downloadPath);
-        await stream.CopyToAsync(file, cancellationToken);
+        var downloadPath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(fileName)}-{Guid.NewGuid():N}{Path.GetExtension(fileName)}");
+        await using (var stream = await Http.GetStreamAsync(downloadUrl, cancellationToken))
+        await using (var file = new FileStream(downloadPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+        {
+            await stream.CopyToAsync(file, cancellationToken);
+        }
 
-        Process.Start(new ProcessStartInfo(downloadPath) { UseShellExecute = true });
+        var workingDirectory = Path.GetDirectoryName(downloadPath) ?? Path.GetTempPath();
+        const int maxAttempts = 3;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(downloadPath)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = workingDirectory
+                });
+                break;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                await Task.Delay(500, cancellationToken);
+            }
+        }
     }
 
     public string GetCurrentVersion()
