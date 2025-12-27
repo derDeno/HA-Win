@@ -45,10 +45,12 @@ jobs:
         run: choco install innosetup -y
 
       - name: Build installer
+        env:
+          APP_VERSION: ${{ steps.app_version.outputs.version }}
         run: |
           $iscc = "${env:ProgramFiles(x86)}\\Inno Setup 6\\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe not found at $iscc" }
-          & $iscc "installer\\ha-win.iss"
+          & $iscc "/DAppVersion=$env:APP_VERSION" "installer\\ha-win.iss"
 
       - name: Tag release
         run: |
