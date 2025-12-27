@@ -59,6 +59,11 @@ public partial class App : System.Windows.Application
         Shutdown();
     }
 
+    public void RequestExit()
+    {
+        ExitApplication();
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         TrayIconService.Dispose();
@@ -82,16 +87,18 @@ public partial class App : System.Windows.Application
                 return;
             }
 
-            await Dispatcher.InvokeAsync(() =>
+            var choice = await Dispatcher.InvokeAsync(() =>
             {
                 var message = $"A new version ({result.LatestVersion}) is available. Download and install it now?";
-                var choice = System.Windows.MessageBox.Show(Current.MainWindow!, message, "Update Available",
+                return System.Windows.MessageBox.Show(Current.MainWindow!, message, "Update Available",
                     MessageBoxButton.YesNo, MessageBoxImage.Information);
-                if (choice == MessageBoxResult.Yes)
-                {
-                    _ = UpdateService.DownloadAndRunInstallerAsync(result.DownloadUrl);
-                }
             });
+
+            if (choice == MessageBoxResult.Yes)
+            {
+                await UpdateService.DownloadAndRunInstallerAsync(result.DownloadUrl);
+                await Dispatcher.InvokeAsync(RequestExit);
+            }
         }
         catch
         {
