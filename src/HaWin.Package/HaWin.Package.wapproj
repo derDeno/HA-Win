@@ -1,8 +1,8 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <PlatformTarget>x64</PlatformTarget>
     <ProjectGuid>{C1A7F9F8-1F6B-4BE0-9DAD-3EA538FBA725}</ProjectGuid>
     <ProjectTypeGuids>{C7167F0D-BC9E-4E6E-9061-6F9D327D7E1A}</ProjectTypeGuids>
     <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
@@ -13,6 +13,7 @@
     <AppxPackageDir>bin\$(Configuration)\AppPackages\</AppxPackageDir>
     <PackageVersion>$(Version).0</PackageVersion>
     <AppxPackageIncludeVCLibs>false</AppxPackageIncludeVCLibs>
+    <AppxPackageArchitecture>x64</AppxPackageArchitecture>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -41,4 +42,5 @@
   </ItemGroup>
 
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets" />
+  <Target Name="_ResolveVCLibDependencies" />
 </Project>
