@@ -12,6 +12,7 @@ public partial class MainWindow : Window
     private readonly App _app;
     private readonly UpdateService _updateService;
     private bool _allowClose;
+    private bool _autoCheckUpdatesOnLaunch;
 
     public MainWindow()
     {
@@ -24,10 +25,13 @@ public partial class MainWindow : Window
         var settings = _app.SettingsService.Load();
         _viewModel.LoadFrom(settings);
         PasswordBox.Password = settings.Password;
+        _autoCheckUpdatesOnLaunch = settings.AutoCheckUpdates;
 
         _app.MqttService.ConnectionChanged += OnConnectionChanged;
         _viewModel.IsConnected = _app.MqttService.IsConnected;
         _ = UpdateConnectionStatusAsync();
+
+        Loaded += MainWindow_OnLoaded;
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -104,15 +108,18 @@ public partial class MainWindow : Window
         _viewModel.IsConnected = _app.MqttService.IsConnected;
     }
 
-    private async Task CheckForUpdatesAsync()
+    private async Task CheckForUpdatesAsync(bool showUpToDateMessage = true, bool showErrors = true)
     {
         try
         {
             var result = await _updateService.CheckForUpdateAsync(_updateService.GetCurrentVersion());
             if (result == null)
             {
-                System.Windows.MessageBox.Show(this, "You are running the latest version.", "Update Check",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                if (showUpToDateMessage)
+                {
+                    System.Windows.MessageBox.Show(this, "You are running the latest version.", "Update Check",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
                 return;
             }
 
@@ -127,8 +134,11 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show(this, $"Update check failed: {ex.Message}", "Update Check",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            if (showErrors)
+            {
+                System.Windows.MessageBox.Show(this, $"Update check failed: {ex.Message}", "Update Check",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 
@@ -136,5 +146,15 @@ public partial class MainWindow : Window
     {
         _allowClose = true;
         Close();
+    }
+
+    private async void MainWindow_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (!_autoCheckUpdatesOnLaunch)
+        {
+            return;
+        }
+
+        await CheckForUpdatesAsync(showUpToDateMessage: false, showErrors: false);
     }
 }
