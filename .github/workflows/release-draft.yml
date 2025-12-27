@@ -93,6 +93,17 @@ jobs:
             }
           }
           if (-not $makeappx) {
+            Write-Host "SDK install did not provide makeappx.exe. Falling back to Microsoft.Windows.SDK.BuildTools via NuGet..."
+            if (-not (Get-Command nuget -ErrorAction SilentlyContinue)) {
+              dotnet tool install --global NuGet.CommandLine --version 6.9.1
+              $env:PATH = "$env:PATH;$env:USERPROFILE\\.dotnet\\tools"
+            }
+            $sdkOut = "artifacts\\sdk"
+            New-Item -ItemType Directory -Path $sdkOut -Force | Out-Null
+            nuget install Microsoft.Windows.SDK.BuildTools -Version 10.0.22621.756 -OutputDirectory $sdkOut
+            $makeappx = Get-ChildItem $sdkOut -Recurse -Filter makeappx.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+          }
+          if (-not $makeappx) {
             Write-Host "makeappx.exe not found in SDK roots. Diagnostics:"
             $sdkRoots | ForEach-Object { Write-Host " - $_ (exists: $(Test-Path $_))" }
             Write-Host "where.exe makeappx:"
