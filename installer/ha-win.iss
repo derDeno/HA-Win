@@ -15,8 +15,8 @@ AppPublisher={#AppPublisher}
 DefaultDirName={autopf}\HA Win
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppExeName}
-SetupIconFile=icon.ico
-OutputDir=artifacts\installer
+SetupIconFile=..\icon.ico
+OutputDir=..\artifacts\installer
 OutputBaseFilename=HA-Win-Setup
 Compression=lzma2
 SolidCompression=yes
@@ -32,7 +32,7 @@ Name: "startmenuicon"; Description: "Create a &Start Menu shortcut"; GroupDescri
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
 
 [Files]
-Source: "artifacts\\publish\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "..\\artifacts\\publish\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
 Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: startmenuicon
