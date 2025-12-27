@@ -6,7 +6,12 @@ public static class TopicHelper
 {
     public static string GetDeviceId()
     {
-        var name = Environment.MachineName.Trim().ToLowerInvariant();
+        return SanitizeNamespace(Environment.MachineName);
+    }
+
+    public static string SanitizeNamespace(string value)
+    {
+        var name = value.Trim().ToLowerInvariant();
         var sb = new StringBuilder(name.Length);
 
         foreach (var ch in name)

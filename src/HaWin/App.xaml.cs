@@ -11,6 +11,7 @@ public partial class App : System.Windows.Application
     public TrayIconService TrayIconService { get; private set; } = null!;
     public NotificationService NotificationService { get; private set; } = null!;
     public MqttService MqttService { get; private set; } = null!;
+    public UpdateService UpdateService { get; } = new();
 
     private AppSettings _settings = new();
 
@@ -32,6 +33,8 @@ public partial class App : System.Windows.Application
         var window = new MainWindow();
         Current.MainWindow = window;
         window.Show();
+
+        _ = CheckForUpdatesOnStartupAsync();
     }
 
     private void ShowSettingsWindow()
@@ -61,5 +64,38 @@ public partial class App : System.Windows.Application
         TrayIconService.Dispose();
         MqttService.Dispose();
         base.OnExit(e);
+    }
+
+    private async Task CheckForUpdatesOnStartupAsync()
+    {
+        if (!_settings.AutoCheckUpdates)
+        {
+            return;
+        }
+
+        try
+        {
+            var currentVersion = UpdateService.GetCurrentVersion();
+            var result = await UpdateService.CheckForUpdateAsync(currentVersion);
+            if (result == null)
+            {
+                return;
+            }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                var message = $"A new version ({result.LatestVersion}) is available. Download and install it now?";
+                var choice = System.Windows.MessageBox.Show(Current.MainWindow!, message, "Update Available",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information);
+                if (choice == MessageBoxResult.Yes)
+                {
+                    _ = UpdateService.DownloadAndRunInstallerAsync(result.DownloadUrl);
+                }
+            });
+        }
+        catch
+        {
+            // Silent on startup to avoid blocking app launch.
+        }
     }
 }

@@ -12,13 +12,15 @@ public class SettingsViewModel : INotifyPropertyChanged
     private int _brokerPort = 1883;
     private string _username = "";
     private string _password = "";
+    private string _namespace = TopicHelper.GetDeviceId();
     private bool _useTls;
     private bool _autoStart;
+    private bool _autoCheckUpdates;
     private string _clientId = "";
     private bool _isConnected;
 
     public string MachineName { get; } = Environment.MachineName;
-    public string DeviceId { get; } = TopicHelper.GetDeviceId();
+    public string DeviceId => TopicHelper.SanitizeNamespace(Namespace);
     public string NotifyTopic => $"ha-win/{DeviceId}/notify";
     public string AppVersion { get; } = GetAppVersion();
 
@@ -46,6 +48,18 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _password, value);
     }
 
+    public string Namespace
+    {
+        get => _namespace;
+        set
+        {
+            if (SetField(ref _namespace, value))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NotifyTopic)));
+            }
+        }
+    }
+
     public bool UseTls
     {
         get => _useTls;
@@ -56,6 +70,12 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         get => _autoStart;
         set => SetField(ref _autoStart, value);
+    }
+
+    public bool AutoCheckUpdates
+    {
+        get => _autoCheckUpdates;
+        set => SetField(ref _autoCheckUpdates, value);
     }
 
     public string ClientId
@@ -76,8 +96,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         BrokerPort = settings.BrokerPort;
         Username = settings.Username;
         Password = settings.Password;
+        Namespace = string.IsNullOrWhiteSpace(settings.Namespace)
+            ? TopicHelper.GetDeviceId()
+            : settings.Namespace;
         UseTls = settings.UseTls;
         AutoStart = settings.AutoStart;
+        AutoCheckUpdates = settings.AutoCheckUpdates;
         ClientId = settings.ClientId;
     }
 
@@ -89,23 +113,26 @@ public class SettingsViewModel : INotifyPropertyChanged
             BrokerPort = BrokerPort,
             Username = Username,
             Password = Password,
+            Namespace = Namespace,
             UseTls = UseTls,
             AutoStart = AutoStart,
+            AutoCheckUpdates = AutoCheckUpdates,
             ClientId = ClientId
         };
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (Equals(field, value))
         {
-            return;
+            return false;
         }
 
         field = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return true;
     }
 
     private static string GetAppVersion()
