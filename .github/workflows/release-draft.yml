@@ -57,7 +57,7 @@ jobs:
           /p:AppxBundle=Never
           /p:AppxPackageIncludeVCLibs=false
           /p:AppxPackageArchitecture=x64
-          /p:AppxPackageDir=..\..\artifacts\msix\
+          /p:AppxPackageDir=${{ github.workspace }}\artifacts\msix\
           /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
           /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
           /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
@@ -67,15 +67,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -f latest
-          git tag -f v${{ steps.app_version.outputs.version }}
-          git push -f origin latest v${{ steps.app_version.outputs.version }}
+          git push -f origin latest
+          git tag v${{ steps.app_version.outputs.version }}
+          git push origin v${{ steps.app_version.outputs.version }}
 
       - name: Draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          tag_name: latest
+          tag_name: v${{ steps.app_version.outputs.version }}
           name: ${{ steps.app_version.outputs.version }}
+          make_latest: false
           files: |
             artifacts/HaWin-win-x64.zip
             artifacts/msix/**/*.msix
+            artifacts/msix/**/*.appx
