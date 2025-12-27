@@ -48,6 +48,7 @@ public partial class MainWindow : Window
         settings.Password = PasswordBox.Password;
 
         _app.SettingsService.Save(settings);
+        _viewModel.MarkClean();
 
         var exePath = Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName;
         if (!string.IsNullOrWhiteSpace(exePath))
@@ -74,6 +75,11 @@ public partial class MainWindow : Window
     private void HideButton_OnClick(object sender, RoutedEventArgs e)
     {
         Hide();
+    }
+
+    private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+    {
+        _viewModel.Password = PasswordBox.Password;
     }
 
     private void OpenGitHubButton_OnClick(object sender, RoutedEventArgs e)
@@ -116,6 +122,7 @@ public partial class MainWindow : Window
             if (choice == MessageBoxResult.Yes)
             {
                 await _updateService.DownloadAndRunInstallerAsync(result.DownloadUrl);
+                _app.RequestExit();
             }
         }
         catch (Exception ex)

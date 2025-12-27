@@ -18,6 +18,8 @@ public class SettingsViewModel : INotifyPropertyChanged
     private bool _autoCheckUpdates;
     private string _clientId = "";
     private bool _isConnected;
+    private bool _isDirty;
+    private AppSettings _baseline = new();
 
     public string MachineName { get; } = Environment.MachineName;
     public string DeviceId => TopicHelper.SanitizeNamespace(Namespace);
@@ -90,6 +92,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _isConnected, value);
     }
 
+    public bool IsDirty
+    {
+        get => _isDirty;
+        private set => SetField(ref _isDirty, value);
+    }
+
     public void LoadFrom(AppSettings settings)
     {
         BrokerHost = settings.BrokerHost;
@@ -103,6 +111,9 @@ public class SettingsViewModel : INotifyPropertyChanged
         AutoStart = settings.AutoStart;
         AutoCheckUpdates = settings.AutoCheckUpdates;
         ClientId = settings.ClientId;
+
+        _baseline = CreateSnapshot();
+        IsDirty = false;
     }
 
     public AppSettings ToSettings()
@@ -121,6 +132,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         };
     }
 
+    public void MarkClean()
+    {
+        _baseline = CreateSnapshot();
+        IsDirty = false;
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
@@ -132,7 +149,39 @@ public class SettingsViewModel : INotifyPropertyChanged
 
         field = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        UpdateIsDirty();
         return true;
+    }
+
+    private void UpdateIsDirty()
+    {
+        var current = CreateSnapshot();
+        IsDirty =
+            !string.Equals(current.BrokerHost, _baseline.BrokerHost, StringComparison.Ordinal) ||
+            current.BrokerPort != _baseline.BrokerPort ||
+            !string.Equals(current.Username, _baseline.Username, StringComparison.Ordinal) ||
+            !string.Equals(current.Password, _baseline.Password, StringComparison.Ordinal) ||
+            current.UseTls != _baseline.UseTls ||
+            current.AutoStart != _baseline.AutoStart ||
+            !string.Equals(current.Namespace, _baseline.Namespace, StringComparison.Ordinal) ||
+            current.AutoCheckUpdates != _baseline.AutoCheckUpdates ||
+            !string.Equals(current.ClientId, _baseline.ClientId, StringComparison.Ordinal);
+    }
+
+    private AppSettings CreateSnapshot()
+    {
+        return new AppSettings
+        {
+            BrokerHost = BrokerHost,
+            BrokerPort = BrokerPort,
+            Username = Username,
+            Password = Password,
+            UseTls = UseTls,
+            AutoStart = AutoStart,
+            Namespace = Namespace,
+            AutoCheckUpdates = AutoCheckUpdates,
+            ClientId = ClientId
+        };
     }
 
     private static string GetAppVersion()
