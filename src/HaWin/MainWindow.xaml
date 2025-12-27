@@ -135,16 +135,22 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
           <TextBlock Grid.Row="0" Text="App Settings" FontWeight="SemiBold" FontSize="14" />
 
           <StackPanel Grid.Row="1" Margin="0,10,0,0">
             <CheckBox Content="Start with Windows" IsChecked="{Binding AutoStart}" />
+            <CheckBox Content="Check for updates on launch" IsChecked="{Binding AutoCheckUpdates}" Margin="0,6,0,0" />
           </StackPanel>
 
           <StackPanel Grid.Row="2" Margin="0,12,0,0" Orientation="Horizontal">
             <Button Content="Open GitHub" Click="OpenGitHubButton_OnClick" />
+          </StackPanel>
+
+          <StackPanel Grid.Row="3" Margin="0,10,0,0" Orientation="Horizontal">
+            <Button Content="Check for Updates" Click="CheckUpdatesButton_OnClick" />
           </StackPanel>
         </Grid>
       </TabItem>

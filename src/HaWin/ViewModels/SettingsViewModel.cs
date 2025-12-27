@@ -14,6 +14,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private string _password = "";
     private bool _useTls;
     private bool _autoStart;
+    private bool _autoCheckUpdates;
     private string _clientId = "";
     private bool _isConnected;
 
@@ -58,6 +59,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _autoStart, value);
     }
 
+    public bool AutoCheckUpdates
+    {
+        get => _autoCheckUpdates;
+        set => SetField(ref _autoCheckUpdates, value);
+    }
+
     public string ClientId
     {
         get => _clientId;
@@ -78,6 +85,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         Password = settings.Password;
         UseTls = settings.UseTls;
         AutoStart = settings.AutoStart;
+        AutoCheckUpdates = settings.AutoCheckUpdates;
         ClientId = settings.ClientId;
     }
 
@@ -91,6 +99,7 @@ public class SettingsViewModel : INotifyPropertyChanged
             Password = Password,
             UseTls = UseTls,
             AutoStart = AutoStart,
+            AutoCheckUpdates = AutoCheckUpdates,
             ClientId = ClientId
         };
     }

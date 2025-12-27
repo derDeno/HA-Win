@@ -8,5 +8,6 @@ public class AppSettings
     public string Password { get; set; } = "";
     public bool UseTls { get; set; }
     public bool AutoStart { get; set; }
+    public bool AutoCheckUpdates { get; set; }
     public string ClientId { get; set; } = "";
 }
