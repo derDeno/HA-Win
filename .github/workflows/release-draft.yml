@@ -58,11 +58,11 @@ jobs:
           Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path "$staging\\Assets" -Force | Out-Null
           Copy-Item artifacts\\publish\\* $staging -Recurse -Force
-          Copy-Item src\\HaWin.Package\\Package.appxmanifest $staging -Force
+          Copy-Item src\\HaWin.Package\\Package.appxmanifest "$staging\\AppxManifest.xml" -Force
           Copy-Item src\\HaWin.Package\\Assets\\* "$staging\\Assets" -Recurse -Force
-          [xml]$manifest = Get-Content "$staging\\Package.appxmanifest"
+          [xml]$manifest = Get-Content "$staging\\AppxManifest.xml"
           $manifest.Package.Identity.Version = "$env:APP_VERSION.0"
-          $manifest.Save("$staging\\Package.appxmanifest")
+          $manifest.Save("$staging\\AppxManifest.xml")
           New-Item -ItemType Directory -Path artifacts\\msix -Force | Out-Null
           $sdkRoots = @(
             "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin",
@@ -121,6 +121,9 @@ jobs:
               $signtool = Get-ChildItem $root -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
               if ($signtool) { break }
             }
+          }
+          if (-not $signtool -and (Test-Path "artifacts\\sdk")) {
+            $signtool = Get-ChildItem "artifacts\\sdk" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
           }
           if (-not $signtool) { throw "signtool.exe not found" }
           & $signtool.FullName sign /fd SHA256 /f $env:CERT_PATH /p $env:CERT_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $msixPath
