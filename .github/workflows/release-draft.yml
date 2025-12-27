@@ -66,6 +66,9 @@ jobs:
           New-Item -ItemType Directory -Path artifacts\\msix -Force | Out-Null
           $sdkRoots = @(
             "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin",
+            "$env:ProgramFiles\\Windows Kits\\10\\bin",
+            "$env:ProgramFiles(x86)\\Windows Kits\\10",
+            "$env:ProgramFiles\\Windows Kits\\10",
             "$env:ProgramFiles(x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin"
           )
           $makeappx = $null
