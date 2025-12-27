@@ -48,43 +48,30 @@ jobs:
           [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ secrets.MSIX_CERT_BASE64 }}"))
           "cert_path=$certPath" >> $env:GITHUB_OUTPUT
 
-      - name: Build MSIX
-        run: >
-          msbuild src/HaWin.Package/HaWin.Package.wapproj
-          /p:Configuration=Release
-          /p:Platform=x64
-          /p:GenerateAppxPackageOnBuild=true
-          /p:AppxBundle=Never
-          /p:AppxPackageIncludeVCLibs=false
-          /p:AppxPackageArchitecture=x64
-          /p:PackageCertificateKeyFile="${{ steps.msix_cert.outputs.cert_path }}"
-          /p:PackageCertificatePassword="${{ secrets.MSIX_CERT_PASSWORD }}"
-          /p:PackageVersion=${{ steps.app_version.outputs.version }}.0
-
-      - name: Collect MSIX output
+      - name: Build MSIX (manual)
+        env:
+          APP_VERSION: ${{ steps.app_version.outputs.version }}
+          CERT_PATH: ${{ steps.msix_cert.outputs.cert_path }}
+          CERT_PASSWORD: ${{ secrets.MSIX_CERT_PASSWORD }}
         run: |
-          New-Item -ItemType Directory -Path artifacts\msix -Force | Out-Null
-          $searchRoots = @(
-            "artifacts\\msix",
-            "src\\HaWin.Package\\bin",
-            "src\\HaWin.Package\\obj"
-          )
-          $patterns = "*.msix","*.appx","*.msixbundle","*.msixupload","*.appxupload"
-          $packages = foreach ($root in $searchRoots) {
-            if (Test-Path $root) {
-              Get-ChildItem -Path $root -Recurse -Include $patterns -ErrorAction SilentlyContinue
-            }
-          }
-          if (-not $packages) {
-            Write-Host "Checked paths:"
-            $searchRoots | ForEach-Object { Write-Host " - $_" }
-            Write-Error "No MSIX/AppX packages found."
-            exit 1
-          }
-          foreach ($p in $packages) {
-            Copy-Item $p.FullName -Destination artifacts\msix -Force
-          }
-          Get-ChildItem -Path artifacts\msix -Recurse
+          $staging = "artifacts\\msix-staging"
+          Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "$staging\\Assets" -Force | Out-Null
+          Copy-Item artifacts\\publish\\* $staging -Recurse -Force
+          Copy-Item src\\HaWin.Package\\Package.appxmanifest $staging -Force
+          Copy-Item src\\HaWin.Package\\Assets\\* "$staging\\Assets" -Recurse -Force
+          [xml]$manifest = Get-Content "$staging\\Package.appxmanifest"
+          $manifest.Package.Identity.Version = "$env:APP_VERSION.0"
+          $manifest.Save("$staging\\Package.appxmanifest")
+          New-Item -ItemType Directory -Path artifacts\\msix -Force | Out-Null
+          $makeappx = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter makeappx.exe | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $makeappx) { throw "makeappx.exe not found" }
+          $msixPath = "artifacts\\msix\\HaWin_$env:APP_VERSION`_x64.msix"
+          & $makeappx.FullName pack /d $staging /p $msixPath /o
+          $signtool = Get-ChildItem "$env:ProgramFiles(x86)\\Windows Kits\\10\\bin" -Recurse -Filter signtool.exe | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signtool) { throw "signtool.exe not found" }
+          & $signtool.FullName sign /fd SHA256 /f $env:CERT_PATH /p $env:CERT_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $msixPath
+          Get-ChildItem -Path artifacts\\msix
 
       - name: Tag release
         run: |
@@ -103,7 +90,3 @@ jobs:
           files: |
             artifacts/HaWin-win-x64.zip
             artifacts/msix/**/*.msix
-            artifacts/msix/**/*.appx
-            artifacts/msix/**/*.msixbundle
-            artifacts/msix/**/*.msixupload
-            artifacts/msix/**/*.appxupload
