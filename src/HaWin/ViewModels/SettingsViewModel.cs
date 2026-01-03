@@ -17,6 +17,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private bool _autoStart;
     private bool _autoCheckUpdates;
     private string _clientId = "";
+    private bool _showWindowOnStartup = true;
     private bool _isConnected;
     private bool _isDirty;
     private AppSettings _baseline = new();
@@ -86,6 +87,12 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _clientId, value);
     }
 
+    public bool ShowWindowOnStartup
+    {
+        get => _showWindowOnStartup;
+        set => SetField(ref _showWindowOnStartup, value);
+    }
+
     public bool IsConnected
     {
         get => _isConnected;
@@ -111,6 +118,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         AutoStart = settings.AutoStart;
         AutoCheckUpdates = settings.AutoCheckUpdates;
         ClientId = settings.ClientId;
+        ShowWindowOnStartup = settings.ShowWindowOnStartup;
 
         _baseline = CreateSnapshot();
         IsDirty = false;
@@ -128,7 +136,8 @@ public class SettingsViewModel : INotifyPropertyChanged
             UseTls = UseTls,
             AutoStart = AutoStart,
             AutoCheckUpdates = AutoCheckUpdates,
-            ClientId = ClientId
+            ClientId = ClientId,
+            ShowWindowOnStartup = ShowWindowOnStartup
         };
     }
 
@@ -165,7 +174,8 @@ public class SettingsViewModel : INotifyPropertyChanged
             current.AutoStart != _baseline.AutoStart ||
             !string.Equals(current.Namespace, _baseline.Namespace, StringComparison.Ordinal) ||
             current.AutoCheckUpdates != _baseline.AutoCheckUpdates ||
-            !string.Equals(current.ClientId, _baseline.ClientId, StringComparison.Ordinal);
+            !string.Equals(current.ClientId, _baseline.ClientId, StringComparison.Ordinal) ||
+            current.ShowWindowOnStartup != _baseline.ShowWindowOnStartup;
     }
 
     private AppSettings CreateSnapshot()
@@ -180,7 +190,8 @@ public class SettingsViewModel : INotifyPropertyChanged
             AutoStart = AutoStart,
             Namespace = Namespace,
             AutoCheckUpdates = AutoCheckUpdates,
-            ClientId = ClientId
+            ClientId = ClientId,
+            ShowWindowOnStartup = ShowWindowOnStartup
         };
     }
 

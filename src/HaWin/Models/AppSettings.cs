@@ -11,4 +11,5 @@ public class AppSettings
     public string Namespace { get; set; } = "";
     public bool AutoCheckUpdates { get; set; }
     public string ClientId { get; set; } = "";
+    public bool ShowWindowOnStartup { get; set; } = true;
 }

@@ -32,7 +32,17 @@ public partial class App : System.Windows.Application
 
         var window = new MainWindow();
         Current.MainWindow = window;
-        window.Show();
+        if (_settings.ShowWindowOnStartup)
+        {
+            window.Show();
+        }
+        else
+        {
+            window.ShowInTaskbar = false;
+            window.WindowState = WindowState.Minimized;
+            window.Show();
+            window.Hide();
+        }
     }
 
     private void ShowSettingsWindow()
@@ -42,6 +52,7 @@ public partial class App : System.Windows.Application
             Current.MainWindow = new MainWindow();
         }
 
+        Current.MainWindow.ShowInTaskbar = true;
         Current.MainWindow.Show();
         Current.MainWindow.WindowState = WindowState.Normal;
         Current.MainWindow.Activate();
