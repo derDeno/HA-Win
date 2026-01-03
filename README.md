@@ -35,7 +35,7 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 - Download the zip and copy the whole folder to the program files directory and execute the `HAWin.exe`
 
 ### 3. Compile yourself
-- Donwload the source code
+- Download the source code
 - run 
 ```powershell
 dotnet build .\src\HaWin\HaWin.csproj

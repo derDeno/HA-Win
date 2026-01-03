@@ -7,7 +7,7 @@
     <ApplicationIcon>..\..\icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.1.8</Version>
+    <Version>0.1.9</Version>
     <InformationalVersion>$(Version)</InformationalVersion>
   </PropertyGroup>
 
