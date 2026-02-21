@@ -26,6 +26,16 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 - Windows 10/11
 - .NET 10 runtime (SDK only required for building)
 
+
+## Screenshots
+
+<img src="assets/screen-1.png.png" width="80%" alt="Screen 1">
+
+<img src="assets/screen-2.png.png" width="80%" alt="Screen 2">
+
+<img src="assets/screen-3.png.png" width="80%" alt="Screen 3">
+
+
 ## Installation
 
 ### 1. Installer
@@ -36,7 +46,7 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
 ### 3. Compile yourself
 - Download the source code
-- run 
+- run
 ```powershell
 dotnet build .\src\HaWin\HaWin.csproj
 ```
