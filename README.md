@@ -29,11 +29,11 @@ Windows 10/11 MQTT bridge for Home Assistant with built-in discovery.
 
 ## Screenshots
 
-<img src="assets/screen-1.png.png" width="80%" alt="Screen 1">
+<img src="/assets/screen-1.png" width="80%" alt="Screen 1">
 
-<img src="assets/screen-2.png.png" width="80%" alt="Screen 2">
+<img src="/assets/screen-2.png" width="80%" alt="Screen 2">
 
-<img src="assets/screen-3.png.png" width="80%" alt="Screen 3">
+<img src="/assets/screen-3.png" width="80%" alt="Screen 3">
 
 
 ## Installation
