@@ -24,8 +24,8 @@ OutputDir=..\artifacts\installer
 OutputBaseFilename=HA-Win-Setup
 Compression=lzma2
 SolidCompression=yes
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 UsePreviousAppDir=yes
 DisableDirPage=auto
@@ -43,8 +43,8 @@ Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "A
 Source: "..\\artifacts\\publish\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
-Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: startmenuicon
-Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: desktopicon
+Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "{#AppName}"; Tasks: startmenuicon
+Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "{#AppName}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent

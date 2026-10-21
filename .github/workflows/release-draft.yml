@@ -4,61 +4,54 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   build_and_draft:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Restore
-        run: dotnet restore src/HaWin/HaWin.csproj -r win-x64
-
-      - name: Publish
-        run: dotnet publish src/HaWin/HaWin.csproj -c Release -r win-x64 --self-contained false -o artifacts/publish
-
-      - name: Get app version
+      - name: Setup Rust
+        run: rustup show
+      - name: Test
+        run: cargo test --locked
+      - name: Build
+        run: cargo build --release --locked
+      - name: Prepare package
         id: app_version
+        shell: pwsh
         run: |
-          $version = dotnet msbuild src/HaWin/HaWin.csproj -getProperty:Version -nologo
+          $metadata = cargo metadata --no-deps --format-version 1 | ConvertFrom-Json
+          $version = $metadata.packages[0].version
           "version=$version" >> $env:GITHUB_OUTPUT
-
-      - name: Package
-        run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
-      
+          New-Item -ItemType Directory -Force artifacts/publish | Out-Null
+          Copy-Item target/release/HaWin.exe, LICENSE, README.md -Destination artifacts/publish
+          Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
       - name: Install Inno Setup
         run: choco install innosetup -y
-
       - name: Build installer
         env:
           APP_VERSION: ${{ steps.app_version.outputs.version }}
         run: |
-          $iscc = "${env:ProgramFiles(x86)}\\Inno Setup 6\\ISCC.exe"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe not found at $iscc" }
-          & $iscc "/DAppVersion=$env:APP_VERSION" "installer\\ha-win.iss"
-
+          & $iscc "/DAppVersion=$env:APP_VERSION" "installer\ha-win.iss"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Tag release
+        env:
+          APP_VERSION: ${{ steps.app_version.outputs.version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v${{ steps.app_version.outputs.version }}
-          git push origin v${{ steps.app_version.outputs.version }}
-
+          git tag "v$env:APP_VERSION"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git push origin "v$env:APP_VERSION"
       - name: Draft release
         uses: softprops/action-gh-release@v2
         with:
