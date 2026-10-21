@@ -18,6 +18,7 @@ WebView, or browser is required.
 
 - Home Assistant MQTT discovery: restart, shutdown, standby, and notifications
 - Native settings window with Status, MQTT, and App tabs
+- English and German UI with automatic Windows language detection and a saved language preference
 - Bold MQTT status: green when running, red when disconnected
 - Tray icon: click to open settings, right-click to open or exit
 - Closing the settings window keeps the client running in the tray
@@ -32,6 +33,8 @@ For everyday use, download and run `HA-Win-Setup.exe` from the
 [latest release](https://github.com/derDeno/HA-Win/releases/latest). It provides
 Start Menu shortcuts, an uninstaller, and a stable installation path for autostart
 and updates. Releases before 1.0.0 contain the C# version.
+The installer detects the Windows display language and uses German or English;
+it offers a language choice when neither language matches.
 
 For testing or running without installation, extract `HaWin-win-x64.zip` and run
 `HaWin.exe`. The EXE needs no companion runtime files, so a standalone download
@@ -49,6 +52,13 @@ the installer and switches you to an installed copy.
 
 To check for a new version manually, open the **App** tab and select
 **Check now for updates** below **Check for updates on launch**.
+
+The app follows your Windows display language by default: German for German
+regional variants, English for all other languages. In **App > Language**, choose
+**Automatic (Windows language)**, **English**, or **Deutsch**, then select **Save**.
+The interface and tray menu switch immediately without restarting. Translation
+catalogs in `locales/en.json` and `locales/de.json` are embedded in the EXE.
+Technical details from Windows and network libraries may use their own language.
 
 The Namespace defaults to the PC name. Spaces and hyphens become underscores,
 letters become lowercase, and other punctuation is removed. Keep your existing
@@ -111,7 +121,7 @@ With [Inno Setup 6](https://jrsoftware.org/isinfo.php) installed:
 cargo build --release --locked
 New-Item -ItemType Directory -Force artifacts/publish
 Copy-Item target/release/HaWin.exe, LICENSE.md, README.md artifacts/publish
-& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DAppVersion=1.0.0 installer/ha-win.iss
+& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DAppVersion=1.0.1 installer/ha-win.iss
 ```
 
 The installer retains the existing product identity and installation directory for

@@ -1,3 +1,4 @@
+use crate::i18n;
 use anyhow::{bail, Context, Result};
 use reqwest::blocking::Client;
 use semver::Version;
@@ -43,7 +44,7 @@ fn release_update(release: Release, current: &str) -> Result<Option<Update>> {
         .into_iter()
         .find(|a| a.name.eq_ignore_ascii_case("HA-Win-Setup.exe"))
     else {
-        bail!("The release has no HA-Win-Setup.exe installer.");
+        bail!("{}", i18n::text().missing_installer);
     };
     validate_url(&asset.browser_download_url)?;
     Ok(Some(Update {
@@ -60,7 +61,7 @@ fn validate_url(url: &str) -> Result<()> {
             .path()
             .starts_with("/derDeno/HA-Win/releases/download/")
     {
-        bail!("Unexpected installer download URL.");
+        bail!("{}", i18n::text().invalid_download_url);
     }
     Ok(())
 }
@@ -89,8 +90,11 @@ pub fn install(update: &Update) -> Result<()> {
     // Keep the downloaded installer alive after this process exits.
     let (_, path) = file
         .keep()
-        .context("Could not preserve downloaded installer")?;
-    crate::platform::open_url(path.to_str().context("Installer path is not Unicode")?)
+        .context(&i18n::text().preserve_installer_failed)?;
+    crate::platform::open_url(
+        path.to_str()
+            .context(&i18n::text().invalid_installer_path)?,
+    )
 }
 
 #[cfg(test)]
