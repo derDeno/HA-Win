@@ -1,6 +1,15 @@
 <p align="center"><img src="icon.png" width="128" alt="HA Win icon"></p>
 <h1 align="center">HA Win</h1>
 
+<p align="center">
+  <a href="https://github.com/derDeno/HA-Win/releases/latest">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/derDeno/HA-Win?display_name=tag&sort=semver">
+  </a>
+  <a href="https://github.com/derDeno/HA-Win/actions/workflows/release-draft.yml">
+    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/derDeno/HA-Win/release-draft.yml">
+  </a>
+</p>
+
 A small native Windows 10/11 client connecting your PC to Home Assistant over MQTT.
 Version 1.0.0 replaces the previous C#/WPF application with Rust. No .NET runtime,
 WebView, or browser is required.
