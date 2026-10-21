@@ -2,13 +2,14 @@
 <h1 align="center">HA Win</h1>
 
 A small native Windows 10/11 client connecting your PC to Home Assistant over MQTT.
-This branch replaces the previous C#/WPF application with Rust. No .NET runtime,
+Version 1.0.0 replaces the previous C#/WPF application with Rust. No .NET runtime,
 WebView, or browser is required.
 
 ## Features
 
 - Home Assistant MQTT discovery: restart, shutdown, standby, and notifications
 - Native settings window with Status, MQTT, and App tabs
+- Bold MQTT status: green when running, red when disconnected
 - Tray icon: click to open settings, right-click to open or exit
 - Closing the settings window keeps the client running in the tray
 - MQTT credentials, TLS using the Windows certificate store, connection test, and reconnect
@@ -18,15 +19,27 @@ WebView, or browser is required.
 
 ## Install and run
 
-Download `HA-Win-Setup.exe` from a release built from this Rust branch, or extract
-`HaWin-win-x64.zip` and run `HaWin.exe`. The portable executable can also run on its
-own. Existing releases before 0.2.0 contain the C# version.
+For everyday use, download and run `HA-Win-Setup.exe` from the
+[latest release](https://github.com/derDeno/HA-Win/releases/latest). It provides
+Start Menu shortcuts, an uninstaller, and a stable installation path for autostart
+and updates. Releases before 1.0.0 contain the C# version.
+
+For testing or running without installation, extract `HaWin-win-x64.zip` and run
+`HaWin.exe`. The EXE needs no companion runtime files, so a standalone download
+remains useful. This is not a fully portable profile: settings stay in AppData,
+notifications register an application identity for the current Windows user, and
+enabling autostart adds a registry entry pointing to the current EXE path. Keep
+the EXE in a permanent folder if you enable autostart. Accepting an update launches
+the installer and switches you to an installed copy.
 
 1. Open settings from the tray icon.
 2. Enter your MQTT host, port, and optional credentials. Enable TLS if required by
    your broker (usually port 8883). Use a hostname matching its certificate.
 3. Test the connection, then Save.
 4. Home Assistant discovers the device automatically when its MQTT integration is enabled.
+
+To check for a new version manually, open the **App** tab and select
+**Check now for updates** below **Check for updates on launch**.
 
 The Namespace defaults to the PC name. Spaces and hyphens become underscores,
 letters become lowercase, and other punctuation is removed. Keep your existing
@@ -88,8 +101,8 @@ With [Inno Setup 6](https://jrsoftware.org/isinfo.php) installed:
 ```powershell
 cargo build --release --locked
 New-Item -ItemType Directory -Force artifacts/publish
-Copy-Item target/release/HaWin.exe, LICENSE, README.md artifacts/publish
-& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DAppVersion=0.2.0 installer/ha-win.iss
+Copy-Item target/release/HaWin.exe, LICENSE.md, README.md artifacts/publish
+& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /DAppVersion=1.0.0 installer/ha-win.iss
 ```
 
 The installer retains the existing product identity and installation directory for
@@ -98,4 +111,10 @@ The release workflow creates the ZIP and installer and drafts a GitHub release
 after merging a PR to `main`, or when manually triggered. Bump `Cargo.toml` before
 each release; the version tag must not already exist.
 
-The former C# implementation is available in the `dev` branch and Git history.
+## Branches and license
+
+`dev` contains the Rust implementation. `legacy` preserves the .NET implementation
+from `main` before the migration; its source remains available there and in Git
+history. `main` receives releases by merging development PRs.
+
+The current project license is included in [LICENSE.md](LICENSE.md).

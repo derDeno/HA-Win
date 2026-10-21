@@ -9,6 +9,7 @@ use native_windows_gui as nwg;
 use std::{
     cell::{Cell, RefCell},
     path::PathBuf,
+    rc::Rc,
     sync::mpsc,
     thread,
 };
@@ -21,11 +22,15 @@ pub struct App {
     receiver: RefCell<Option<mpsc::Receiver<UiEvent>>>,
     sender: RefCell<Option<UiSender>>,
     service: RefCell<Option<mqtt::Service>>,
+    connected: Rc<Cell<bool>>,
+    status_style: RefCell<Option<nwg::RawEventHandler>>,
 
     #[nwg_resource]
     resources: nwg::EmbedResource,
     #[nwg_resource(source_embed: Some(&data.resources), source_embed_id: 1)]
     icon: nwg::Icon,
+    #[nwg_resource(family: "Segoe UI", weight: 700)]
+    status_font: nwg::Font,
 
     #[nwg_control(size: (520, 480), center: true, title: "HA Win Settings", flags: "WINDOW|MINIMIZE_BOX", icon: Some(&data.icon))]
     #[nwg_events(OnInit: [App::initialize], OnWindowClose: [App::hide])]
@@ -37,7 +42,7 @@ pub struct App {
     status_tab: nwg::Tab,
     #[nwg_control(parent: status_tab, text: "MQTT Connection", position: (16, 18), size: (450, 22), background_color: Some([255, 255, 255]))]
     connection_caption: nwg::Label,
-    #[nwg_control(parent: status_tab, text: "Not running", position: (16, 44), size: (450, 80), background_color: Some([255, 255, 255]))]
+    #[nwg_control(parent: status_tab, text: "Not running", position: (16, 44), size: (450, 80), background_color: Some([255, 255, 255]), font: Some(&data.status_font))]
     connection_status: nwg::Label,
     #[nwg_control(parent: status_tab, text: "PC Name", position: (16, 140), size: (450, 22), background_color: Some([255, 255, 255]))]
     machine_caption: nwg::Label,
@@ -104,13 +109,13 @@ pub struct App {
     #[nwg_control(parent: app_tab, text: "Check for updates on launch", position: (16, 122), size: (450, 26), background_color: Some([255, 255, 255]))]
     #[nwg_events(OnButtonClick: [App::changed])]
     auto_updates: nwg::CheckBox,
-    #[nwg_control(parent: app_tab, text: "Open GitHub", position: (16, 170), size: (140, 30))]
+    #[nwg_control(parent: app_tab, text: "Check now for updates", position: (16, 158), size: (190, 30))]
+    #[nwg_events(OnButtonClick: [App::check_updates])]
+    update_button: nwg::Button,
+    #[nwg_control(parent: app_tab, text: "Open GitHub", position: (16, 210), size: (140, 30))]
     #[nwg_events(OnButtonClick: [App::github])]
     github_button: nwg::Button,
 
-    #[nwg_control(parent: window, text: "Check for Updates", position: (12, 438), size: (150, 30))]
-    #[nwg_events(OnButtonClick: [App::check_updates])]
-    update_button: nwg::Button,
     #[nwg_control(parent: window, text: "Save", position: (310, 438), size: (100, 30), enabled: false)]
     #[nwg_events(OnButtonClick: [App::save])]
     save_button: nwg::Button,
@@ -136,14 +141,40 @@ pub struct App {
 
 impl App {
     pub fn new(settings: Settings, path: PathBuf) -> Self {
-        Self {
-            saved: RefCell::new(settings),
-            path,
-            ..Default::default()
-        }
+        let mut app = Self::default();
+        app.saved.replace(settings);
+        app.path = path;
+        app
     }
 
     fn initialize(&self) {
+        let connected = self.connected.clone();
+        let status_hwnd = self.connection_status.handle.hwnd().unwrap();
+        // NWG supplies the label's background brush; set its text color on the same paint request.
+        *self.status_style.borrow_mut() = Some(
+            nwg::bind_raw_event_handler(
+                &self.status_tab.handle,
+                0x10001,
+                move |_, message, dc, child| {
+                    if message == windows::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC
+                        && child == status_hwnd as isize
+                    {
+                        unsafe {
+                            windows::Win32::Graphics::Gdi::SetTextColor(
+                                windows::Win32::Graphics::Gdi::HDC(dc as *mut _),
+                                windows::Win32::Foundation::COLORREF(if connected.get() {
+                                    0x008000
+                                } else {
+                                    0x0000ff
+                                }),
+                            );
+                        }
+                    }
+                    None
+                },
+            )
+            .expect("Could not style MQTT connection status"),
+        );
         let saved = self.saved.borrow();
         self.host.set_text(&saved.broker_host);
         self.port.set_text(&saved.broker_port.to_string());
@@ -289,6 +320,7 @@ impl App {
         for event in events {
             match event {
                 UiEvent::Connection(connected, message) => {
+                    self.connected.set(connected);
                     self.connection_status.set_text(&message);
                     self.tray.set_tip(if connected {
                         "HA Win — MQTT connected"
@@ -330,7 +362,7 @@ impl App {
                 }
                 UiEvent::Update(result, silent) => {
                     self.update_button.set_enabled(true);
-                    self.update_button.set_text("Check for Updates");
+                    self.update_button.set_text("Check now for updates");
                     match result {
                         Ok(Some(update)) => {
                             self.show();
@@ -362,7 +394,7 @@ impl App {
                 }
                 UiEvent::Installed(result) => {
                     self.update_button.set_enabled(true);
-                    self.update_button.set_text("Check for Updates");
+                    self.update_button.set_text("Check now for updates");
                     match result {
                         Ok(()) => self.exit(),
                         Err(e) => self.error(&format!("Update failed: {e}")),
@@ -394,6 +426,14 @@ impl App {
     }
     fn exit(&self) {
         nwg::stop_thread_dispatch();
+    }
+}
+
+impl Drop for App {
+    fn drop(&mut self) {
+        if let Some(handler) = self.status_style.get_mut().take() {
+            let _ = nwg::unbind_raw_event_handler(&handler);
+        }
     }
 }
 

@@ -19,6 +19,10 @@ jobs:
           fetch-depth: 0
       - name: Setup Rust
         run: rustup show
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
       - name: Test
         run: cargo test --locked
       - name: Build
@@ -28,10 +32,11 @@ jobs:
         shell: pwsh
         run: |
           $metadata = cargo metadata --no-deps --format-version 1 | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $version = $metadata.packages[0].version
           "version=$version" >> $env:GITHUB_OUTPUT
           New-Item -ItemType Directory -Force artifacts/publish | Out-Null
-          Copy-Item target/release/HaWin.exe, LICENSE, README.md -Destination artifacts/publish
+          Copy-Item target/release/HaWin.exe, LICENSE.md, README.md -Destination artifacts/publish
           Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/HaWin-win-x64.zip
       - name: Install Inno Setup
         run: choco install innosetup -y

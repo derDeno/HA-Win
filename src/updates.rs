@@ -103,17 +103,17 @@ mod tests {
             assets: vec![Asset {
                 name: "HA-Win-Setup.exe".into(),
                 browser_download_url:
-                    "https://github.com/derDeno/HA-Win/releases/download/v0.3.0/HA-Win-Setup.exe"
+                    "https://github.com/derDeno/HA-Win/releases/download/v1.1.0/HA-Win-Setup.exe"
                         .into(),
             }],
         };
-        assert!(release_update(release("v0.1.9"), "0.2.0")
+        assert!(release_update(release("v0.1.9"), "1.0.0")
             .unwrap()
             .is_none());
-        assert!(release_update(release("v0.2.0"), "0.2.0")
+        assert!(release_update(release("v1.0.0"), "1.0.0")
             .unwrap()
             .is_none());
-        assert!(release_update(release("v0.3.0"), "0.2.0")
+        assert!(release_update(release("v1.1.0"), "1.0.0")
             .unwrap()
             .is_some());
         assert!(validate_url("https://evil.example/setup.exe").is_err());
