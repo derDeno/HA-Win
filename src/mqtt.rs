@@ -1,5 +1,6 @@
 use crate::{
     discovery::{self, Command},
+    i18n,
     settings::{machine_name, Settings},
     UiEvent, UiSender,
 };
@@ -10,6 +11,35 @@ use std::{
     thread::{self, JoinHandle},
     time::{Duration, Instant},
 };
+
+#[derive(Default, Debug)]
+pub enum ConnectionStatus {
+    #[default]
+    NotRunning,
+    NotConfigured,
+    Connecting,
+    Running,
+    Disconnected(String),
+    Error(String),
+}
+
+impl ConnectionStatus {
+    pub fn connected(&self) -> bool {
+        matches!(self, Self::Running)
+    }
+
+    pub fn text(&self) -> String {
+        let t = i18n::text();
+        match self {
+            Self::NotRunning => t.not_running.clone(),
+            Self::NotConfigured => t.configure_broker.clone(),
+            Self::Connecting => t.connecting.clone(),
+            Self::Running => t.running.clone(),
+            Self::Disconnected(error) => t.disconnected.replace("{error}", error),
+            Self::Error(error) => error.clone(),
+        }
+    }
+}
 
 enum Control {
     Apply(Settings),
@@ -48,7 +78,7 @@ impl Drop for Service {
 fn connect(settings: &Settings, test: bool) -> Result<(Client, Connection)> {
     settings.validate()?;
     if settings.broker_host.trim().is_empty() {
-        bail!("Configure a broker hostname first.");
+        bail!("{}", settings.language.strings().broker_required);
     }
     let id = settings.device_id();
     let mut client_id = if settings.client_id.trim().is_empty() {
@@ -103,7 +133,7 @@ pub fn test_connection(settings: &Settings) -> Result<()> {
             _ => {}
         }
     }
-    bail!("Connection timed out.")
+    bail!("{}", settings.language.strings().connection_timeout)
 }
 
 fn announce(client: &Client, id: &str) -> Result<()> {
@@ -130,17 +160,16 @@ fn close(client: &Client, connection: &mut Connection, id: &str) {
 fn run(mut settings: Settings, commands: Receiver<Control>, ui: UiSender) {
     'configure: loop {
         ui.send(UiEvent::Connection(
-            false,
             if settings.broker_host.trim().is_empty() {
-                "Configure an MQTT broker.".into()
+                ConnectionStatus::NotConfigured
             } else {
-                "Connecting…".into()
+                ConnectionStatus::Connecting
             },
         ));
         let (client, mut connection) = match connect(&settings, false) {
             Ok(pair) => pair,
             Err(e) => {
-                ui.send(UiEvent::Connection(false, e.to_string()));
+                ui.send(UiEvent::Connection(ConnectionStatus::Error(e.to_string())));
                 match commands.recv() {
                     Ok(Control::Apply(next)) => {
                         settings = next;
@@ -192,9 +221,13 @@ fn run(mut settings: Settings, commands: Receiver<Control>, ui: UiSender) {
                         announce(&client, &id)
                     })();
                     connected = true;
-                    ui.send(UiEvent::Connection(true, "Running".into()));
+                    ui.send(UiEvent::Connection(ConnectionStatus::Running));
                     if let Err(e) = result {
-                        ui.send(UiEvent::Error(format!("Discovery failed: {e}")));
+                        ui.send(UiEvent::Error(
+                            i18n::text()
+                                .discovery_failed
+                                .replace("{error}", &e.to_string()),
+                        ));
                     }
                 }
                 Ok(Ok(Event::Incoming(Packet::Publish(message)))) => {
@@ -219,10 +252,9 @@ fn run(mut settings: Settings, commands: Receiver<Control>, ui: UiSender) {
                 }
                 Ok(Err(e)) => {
                     connected = false;
-                    ui.send(UiEvent::Connection(
-                        false,
-                        format!("Disconnected: {e}. Retrying in 5 seconds."),
-                    ));
+                    ui.send(UiEvent::Connection(ConnectionStatus::Disconnected(
+                        e.to_string(),
+                    )));
                     retry_at = Instant::now() + Duration::from_secs(5);
                 }
                 _ => {}
@@ -401,7 +433,8 @@ mod tests {
         );
         let mut connections = 0;
         while connections < 2 {
-            if let UiEvent::Connection(true, _) = rx.recv_timeout(Duration::from_secs(12)).unwrap()
+            if let UiEvent::Connection(ConnectionStatus::Running) =
+                rx.recv_timeout(Duration::from_secs(12)).unwrap()
             {
                 connections += 1;
             }
@@ -409,12 +442,10 @@ mod tests {
         let _socket = server.join().unwrap();
         service.apply(Settings::default());
         loop {
-            if let UiEvent::Connection(false, message) =
+            if let UiEvent::Connection(ConnectionStatus::NotConfigured) =
                 rx.recv_timeout(Duration::from_secs(5)).unwrap()
             {
-                if message.contains("Configure") {
-                    break;
-                }
+                break;
             }
         }
         drop(service);

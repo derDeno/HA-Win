@@ -1,3 +1,4 @@
+use crate::i18n;
 use anyhow::{bail, Context, Result};
 use std::{os::windows::process::CommandExt, process::Command};
 use windows::{
@@ -89,9 +90,15 @@ pub fn device_action(action: &str) -> Result<()> {
                 .args([if action == "restart" { "/r" } else { "/s" }, "/t", "0"])
                 .creation_flags(0x08000000)
                 .status()
-                .context("Could not run shutdown.exe")?;
+                .context(&i18n::text().shutdown_failed)?;
             if !status.success() {
-                bail!("Windows rejected the {action} command ({status}).");
+                bail!(
+                    "{}",
+                    i18n::text()
+                        .action_rejected
+                        .replace("{action}", action)
+                        .replace("{status}", &status.to_string())
+                );
             }
         }
         "standby" => {
@@ -101,10 +108,15 @@ pub fn device_action(action: &str) -> Result<()> {
             let error = std::io::Error::last_os_error();
             disable_shutdown_privilege();
             if !result {
-                bail!("Windows could not enter standby: {error}");
+                bail!(
+                    "{}",
+                    i18n::text()
+                        .standby_failed
+                        .replace("{error}", &error.to_string())
+                );
             }
         }
-        _ => bail!("Unknown device action"),
+        _ => bail!("{}", i18n::text().unknown_action),
     }
     Ok(())
 }
@@ -147,7 +159,7 @@ fn set_shutdown_privilege(enabled: bool) -> Result<()> {
             }
             AdjustTokenPrivileges(token, false, Some(&privileges), 0, None, None)?;
             if GetLastError() == ERROR_NOT_ALL_ASSIGNED {
-                bail!("Windows did not grant the standby privilege.");
+                bail!("{}", i18n::text().standby_privilege_failed);
             }
             Ok(())
         })();
@@ -169,7 +181,7 @@ pub fn open_url(url: &str) -> Result<()> {
         )
     };
     if result.0 as usize <= 32 {
-        bail!("Windows could not open {url}");
+        bail!("{}", i18n::text().open_failed.replace("{url}", url));
     }
     Ok(())
 }

@@ -1,6 +1,6 @@
 [package]
 name = "ha-win"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "Native Windows MQTT bridge for Home Assistant"
 license-file = "LICENSE.md"
@@ -13,7 +13,7 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1"
-native-windows-gui = { version = "1.0.13", default-features = false, features = ["tabs", "tray-notification", "menu", "cursor", "notice", "embed-resource", "high-dpi"] }
+native-windows-gui = { version = "1.0.13", default-features = false, features = ["tabs", "combobox", "tray-notification", "menu", "cursor", "notice", "embed-resource", "high-dpi"] }
 native-windows-derive = "1.0.5"
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "native-tls"] }
 rumqttc = { version = "0.25.1", default-features = false, features = ["use-native-tls"] }
@@ -22,7 +22,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tempfile = "3"
 winreg = "0.55"
-windows = { version = "0.61", features = ["Data_Xml_Dom", "UI_Notifications", "Win32_System_Power", "Win32_System_Threading", "Win32_Foundation", "Win32_Security", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_WinRT", "Win32_Graphics_Gdi"] }
+windows = { version = "0.61", features = ["Data_Xml_Dom", "UI_Notifications", "Win32_Globalization", "Win32_System_Power", "Win32_System_Threading", "Win32_Foundation", "Win32_Security", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_System_WinRT", "Win32_Graphics_Gdi"] }
 
 [build-dependencies]
 winresource = "0.1"

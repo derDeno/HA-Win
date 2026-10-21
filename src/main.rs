@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod discovery;
+mod i18n;
 mod mqtt;
 mod platform;
 mod settings;
@@ -12,7 +13,7 @@ use nwg::NativeUi;
 use std::sync::mpsc;
 
 pub enum UiEvent {
-    Connection(bool, String),
+    Connection(mqtt::ConnectionStatus),
     Notification(String, String),
     Error(String),
     Test(Result<(), String>),
@@ -37,6 +38,7 @@ impl UiSender {
 }
 
 fn main() {
+    i18n::set_language(i18n::Language::Automatic);
     if let Err(error) = run() {
         nwg::error_message("HA Win", &format!("{error:#}"));
     }
@@ -62,10 +64,7 @@ fn run() -> anyhow::Result<()> {
     }
     let _instance = Instance(mutex);
     if unsafe { GetLastError() } == ERROR_ALREADY_EXISTS {
-        nwg::simple_message(
-            "HA Win",
-            "HA Win is already running. Open Settings from its tray icon.",
-        );
+        nwg::simple_message("HA Win", &i18n::text().already_running);
         return Ok(());
     }
     let winrt = unsafe { RoInitialize(RO_INIT_SINGLETHREADED) }.is_ok();
@@ -74,6 +73,7 @@ fn run() -> anyhow::Result<()> {
     let path = settings::settings_path()?;
     // A malformed file is reported instead of silently replacing user credentials.
     let mut settings = settings::load(&path)?;
+    i18n::set_language(settings.language);
     settings.auto_start = platform::auto_start_enabled();
     let app = ui::App::build_ui(ui::App::new(settings, path))?;
     nwg::dispatch_thread_events();

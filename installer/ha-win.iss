@@ -35,13 +35,23 @@ UsePreviousAppDir=yes
 DisableDirPage=auto
 VersionInfoVersion={#AppVersion}
 VersionInfoProductVersion={#AppVersion}
+LanguageDetectionMethod=uilanguage
+ShowLanguageDialog=auto
+UsePreviousLanguage=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+
+[CustomMessages]
+english.CreateStartMenuIcon=Create a &Start Menu shortcut
+german.CreateStartMenuIcon=&Startmenü-Verknüpfung erstellen
+english.Shortcuts=Shortcuts:
+german.Shortcuts=Verknüpfungen:
 
 [Tasks]
-Name: "startmenuicon"; Description: "Create a &Start Menu shortcut"; GroupDescription: "Shortcuts:"; Flags: checkedonce
-Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
+Name: "startmenuicon"; Description: "{cm:CreateStartMenuIcon}"; GroupDescription: "{cm:Shortcuts}"; Flags: checkedonce
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "{#PublishDir}\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
@@ -51,7 +61,7 @@ Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "
 Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "{#AppName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\\{#AppExeName}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
 function InitializeUninstall(): Boolean;
