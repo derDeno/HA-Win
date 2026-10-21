@@ -15,3 +15,7 @@ obj/
 # OS
 Thumbs.db
 Desktop.ini
+
+# Rust and release packages
+/target/
+/artifacts/

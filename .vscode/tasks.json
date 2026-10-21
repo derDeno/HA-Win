@@ -3,39 +3,26 @@
     "tasks": [
         {
             "label": "build",
-            "command": "dotnet",
             "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/src/HaWin/HaWin.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary;ForceNoAlign"
-            ],
-            "problemMatcher": "$msCompile"
+            "command": "cargo",
+            "args": ["build", "--locked"],
+            "problemMatcher": "$rustc",
+            "group": { "kind": "build", "isDefault": true }
         },
         {
-            "label": "publish",
-            "command": "dotnet",
+            "label": "test",
             "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/HaWin/HaWin.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary;ForceNoAlign"
-            ],
-            "problemMatcher": "$msCompile"
+            "command": "cargo",
+            "args": ["test", "--locked"],
+            "problemMatcher": "$rustc",
+            "group": "test"
         },
         {
-            "label": "watch",
-            "command": "dotnet",
+            "label": "release",
             "type": "process",
-            "args": [
-                "watch",
-                "run",
-                "--project",
-                "${workspaceFolder}/src/HaWin/HaWin.csproj"
-            ],
-            "problemMatcher": "$msCompile"
+            "command": "cargo",
+            "args": ["build", "--release", "--locked"],
+            "problemMatcher": "$rustc"
         }
     ]
 }
