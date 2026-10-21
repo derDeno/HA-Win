@@ -3,9 +3,13 @@
 #define AppExeName "HaWin.exe"
 #define AppId "{{B5A68C5E-1C5D-4C0D-A3F6-8F4C3B2C6E1A}}"
 
+#ifndef PublishDir
+  #define PublishDir "..\\artifacts\\publish"
+#endif
+
 #ifndef AppVersion
-  #if FileExists("..\\artifacts\\publish\\HaWin.exe")
-    #define AppVersion GetVersionNumbersString("..\\artifacts\\publish\\HaWin.exe")
+  #if FileExists(PublishDir + "\\HaWin.exe")
+    #define AppVersion GetVersionNumbersString(PublishDir + "\\HaWin.exe")
   #else
     #define AppVersion "0.0.0"
   #endif
@@ -24,8 +28,8 @@ OutputDir=..\artifacts\installer
 OutputBaseFilename=HA-Win-Setup
 Compression=lzma2
 SolidCompression=yes
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 UsePreviousAppDir=yes
 DisableDirPage=auto
@@ -40,11 +44,11 @@ Name: "startmenuicon"; Description: "Create a &Start Menu shortcut"; GroupDescri
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
 
 [Files]
-Source: "..\\artifacts\\publish\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#PublishDir}\\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
-Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: startmenuicon
-Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; Tasks: desktopicon
+Name: "{group}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "{#AppName}"; Tasks: startmenuicon
+Name: "{autodesktop}\\{#AppName}"; Filename: "{app}\\{#AppExeName}"; AppUserModelID: "{#AppName}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
